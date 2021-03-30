@@ -1,0 +1,19 @@
+{
+	"env": {
+		"browser": true,
+		"es6": true
+	},
+	"globals": {
+		"describe": "readonly",
+		"it": "readonly",
+		"$_ENV": "readonly",
+		"$_PLATFORM": "readonly"
+	},
+	"extends": ["@masterofbob777/eslint-config"],
+	"overrides": [
+		{
+			"files": ["rand/**/*", "node_modules/**/*", "app/**/*"],
+			"rules": {}
+		}
+	]
+}

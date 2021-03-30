@@ -1,0 +1,15 @@
+{
+	"compilerOptions": {
+		"jsx": "react-jsx",
+		"jsxImportSource": "preact",
+		"checkJs": true,
+		"target": "ES6",
+		"moduleResolution": "node",
+		"typeRoots": ["./node_modules/@types/"],
+		"experimentalDecorators": true,
+		"alwaysStrict": true,
+		"resolveJsonModule": true
+	},
+	"include": ["./src/**/*", "./static/**/*"]
+	
+}
