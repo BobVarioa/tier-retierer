@@ -1,16 +1,13 @@
 {
-	"name": "simple-electron-template",
+	"name": "tier-retierer",
 	"version": "0.0.0",
-	"private": "true",
 	"description": "",
-	"main": "app/background.js",
+	"main": "app/app.js",
 	"scripts": {
-		"postinstall": "electron-builder install-app-deps",
 		"unit": "grunt unit",
 		"e2e": "grunt e2e",
 		"test": "grunt test",
-		"start": "grunt build",
-		"release": "npm test && grunt rbuild --env=production && electron-builder",
+		"start": "grunt build && node ./app/app.js",
 		"lint": "grunt lint"
 	},
 	"keywords": [
@@ -18,16 +15,8 @@
 	],
 	"author": "Bob Varioa",
 	"license": "MIT",
-	"dependencies": {
-		"electron-unhandled": "^3.0.2",
-		"fs-jetpack": "^4.1.0",
-		"preact": "^10.5.13"
-	},
 	"devDependencies": {
 		"@masterofbob777/eslint-config": "^1.0.0",
-		"electron": "^12.0.2",
-		"electron-builder": "^22.10.5",
-		"electron-mocha": "^10.0.0",
 		"esbuild": "^0.11.2",
 		"eslint": "^7.23.0",
 		"grunt": "^1.3.0",
@@ -35,13 +24,11 @@
 		"grunt-contrib-copy": "^1.0.0",
 		"grunt-contrib-watch": "^1.1.0",
 		"grunt-eslint": "^23.0.0",
-		"grunt-prettier": "^2.1.0",
-		"grunt-shell": "^3.0.1",
-		"grunt-webpack": "^4.0.2",
 		"jscc": "^1.1.1",
 		"load-grunt-tasks": "^5.1.0",
-		"mocha": "^8.3.2",
-		"prettier": "^2.2.1",
-		"spectron": "^14.0.0"
+		"prettier": "^2.2.1"
+	},
+	"dependencies": {
+		"canvas": "^2.7.0"
 	}
 }
