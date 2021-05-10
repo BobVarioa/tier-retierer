@@ -1,21 +1,21 @@
 import { createCanvas, loadImage } from "canvas";
 import "./tiers";
 import * as fs from "fs";
-import {
-	getIcon,
-	getImageDataFromMatrix,
-	getImageMatrix,
-	mergeMatrix,
-	replaceColor,
-} from "./helpers/main";
+import { getIcon, Matrix } from "./helpers/main";
 import Tier from "./class/Tier";
 
 try {
+	console.time("Program");
 	// Number of templates
-	const images = 56;
+	const images = fs.readdirSync("./templates").length;
 	const canvas = createCanvas(images * 24, Tier.tiers.length * 24);
 	const ctx = canvas.getContext("2d");
 
+	/**
+	 *
+	 * @param {number} num
+	 * @param {import("canvas").CanvasRenderingContext2D} gctx
+	 */
 	const imageexpr = async (num, gctx) => {
 		const image = await loadImage(`./templates/template-${num}.png`);
 		const preTemp = await Promise.all([
@@ -38,22 +38,26 @@ try {
 			TROPHY: preTemp[6],
 		};
 
+		/**
+		 * @type {(templateImage: any) => ((oldmatrix: Matrix, rest: any) => Promise<Matrix>)}
+		 */
 		const templateImageFunc = (templateImage) => {
-			return async (matrix, { palette, offset, blend, first = false }) => {
-				if (first) return replaceColor(await getImageMatrix(templateImage), palette);
-
-				return replaceColor(
-					await mergeMatrix(
-						matrix,
-						await getImageMatrix(templateImage),
-						offset,
-						blend === "underlay"
-					),
-					palette
-				);
+			return async (oldmatrix, { palette, offset, blend, first = false }) => {
+				const matrix = await Matrix.create(templateImage);
+				await matrix.replaceColor(palette);
+				if (first) return matrix;
+				if (blend === "underlay") {
+					matrix.merge(oldmatrix, offset);
+					return matrix;
+				}
+				oldmatrix.merge(matrix, offset);
+				return oldmatrix;
 			};
 		};
 
+		/**
+		 * @type {Record<string, (oldmatrix: Matrix, rest: any) => Promise<Matrix>>}
+		 */
 		const actionMap = {
 			plain: templateImageFunc(templateImages.PLAIN),
 			basic: templateImageFunc(templateImages.BASIC),
@@ -62,21 +66,21 @@ try {
 			outline: templateImageFunc(templateImages.OUTLINE),
 			sprkoutline: templateImageFunc(templateImages.SPRKOUTLINE),
 			trophy: templateImageFunc(templateImages.TROPHY),
-			image: async (matrix, { palette, path, offset, blend, first = false }) => {
-				if (first) return replaceColor(await getImageMatrix(path), palette);
-				return replaceColor(
-					await mergeMatrix(
-						matrix,
-						await getImageMatrix(path),
-						offset,
-						blend === "underlay"
-					),
-					palette
-				);
+			async image(oldmatrix, { palette, path, offset, blend, first = false }) {
+				const matrix = await Matrix.create(path);
+				await matrix.replaceColor(palette);
+				if (first) return matrix;
+				if (blend === "underlay") {
+					matrix.merge(oldmatrix, offset);
+					return matrix;
+				}
+				oldmatrix.merge(matrix, offset);
+				return oldmatrix;
 			},
-			recolor: async (matrix, { palette, first = false }) => {
-				if (first) throw new Error("Palette can't be the first action in a series");
-				return replaceColor(matrix, palette);
+			async recolor(matrix, { palette, first = false }) {
+				if (first) throw new Error("Recolor can't be the first action in a series");
+				await matrix.replaceColor(palette);
+				return matrix;
 			},
 		};
 
@@ -84,7 +88,7 @@ try {
 		for (const tier of Tier.tiers) {
 			/* eslint-disable no-await-in-loop */
 
-			/** @type {Matrix<[R: number, G: number, B: number, A: number]>} */
+			/** @type {Matrix} */
 			let matrix;
 
 			let first = true;
@@ -98,11 +102,9 @@ try {
 					first,
 					...element,
 				});
-				// console.log("in the loop : \n", matrix);
 				if (first) first = false;
 			}
-			// console.log("out of the loop : \n",matrix);
-			gctx.putImageData(await getImageDataFromMatrix(matrix), num * 24, i * 24);
+			gctx.putImageData(matrix.getImage(), num * 24, i * 24);
 			i += 1;
 		}
 		return true;
@@ -120,6 +122,7 @@ try {
 		.catch(console.warn)
 		.then(() => {
 			fs.promises.writeFile("./out/tierlist.png", canvas.toBuffer(), "binary");
+			console.timeEnd("Program");
 		});
 } catch (error) {
 	console.warn(error);
