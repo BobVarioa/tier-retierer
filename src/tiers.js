@@ -6,29 +6,60 @@ const SHADOW___ = "#45283c";
 const OUTLINE__ = "#392539";
 const OUTERLINE = "#b1739e";
 
+{
+	/* eslint-disable no-unused-vars */
+	/**
+	 * @type {IGradient}
+	 */
+	const ExGradient1 = {
+		type: "gradient",
+		width: 24,
+		height: 24,
+		diagonal: "top-left",
+		ramp: [
+			{ color: "#ffffff", width: 4 },
+			{ color: "#ff0000", width: 5 },
+			{ color: "#00ff00", width: 6 },
+			{ color: "#0000ff", width: 7 },
+		],
+	};
+	/**
+	 * @type {IGradient}
+	 */
+	const ExGradient2 = {
+		type: "gradient",
+		width: 24,
+		height: 24,
+		ramp: [
+			{ color: "#ffffff" },
+			{ color: "#ff0000" },
+			{ color: "#00ff00" },
+			{ color: "#0000ff" },
+		],
+	};
+}
 /**
- * @type {IGradient}
+ * @param {({width: number, height: number, diagonal?: "top-left" | "top-right" | "down" | "left", ramp: { color: string }[] })} gradient
+ * @returns { IGradient}
  */
-const ExGradient1 = {
-	type: "gradient",
-	width: 24,
-	height: 24,
-	diagonal: "top-left",
-	ramp: [
-		{ color: "#ffffff", width: 4 },
-		{ color: "#ff0000", width: 5 },
-		{ color: "#00ff00", width: 6 },
-		{ color: "#0000ff", width: 7 },
-	],
-};
-/**
- * @type {IGradient}
- */
-const ExGradient2 = {
-	type: "gradient",
-	width: 24,
-	height: 24,
-	ramp: [{ color: "#ffffff" }, { color: "#ff0000" }, { color: "#00ff00" }, { color: "#0000ff" }],
+const BalancedGradient = ({ width, height, diagonal = "top-left", ramp }) => {
+	const getThing = () => {
+		if (diagonal === "down") return height / ramp.length;
+		if (diagonal === "left") return width / ramp.length;
+		if (diagonal === "top-left" || diagonal === "top-right")
+			return Math.ceil(Math.sqrt(width ** 2 + height ** 2) / ramp.length);
+	};
+	return {
+		type: "gradient",
+		width,
+		height,
+		diagonal,
+		ramp: [
+			...ramp.map((val) => {
+				return { color: val.color, width: getThing() };
+			}),
+		],
+	};
 };
 
 new Tier("Plain", [
@@ -176,21 +207,20 @@ new Tier("Alabascream", [
 /**
  * @type {IGradient}
  */
-const IridyumOutline = {
-	type: "gradient",
+const IridyumOutline = BalancedGradient({
 	width: 24,
 	height: 24,
 	diagonal: "top-left",
 	ramp: [
-		{ color: "#f01700", width: 4 },
-		{ color: "#ff7e00", width: 4 },
-		{ color: "#ffcc2f", width: 4 },
-		{ color: "#60ff50", width: 4 },
-		{ color: "#00deff", width: 4 },
-		{ color: "#7e7ab9", width: 4 },
-		{ color: "#a000d5", width: 4 },
+		{ color: "#f01700" },
+		{ color: "#ff7e00" },
+		{ color: "#ffcc2f" },
+		{ color: "#60ff50" },
+		{ color: "#00deff" },
+		{ color: "#7e7ab9" },
+		{ color: "#a000d5" },
 	],
-};
+});
 
 new Tier("Iridyum", [
 	{
@@ -362,7 +392,7 @@ new Tier("Goal 1", [
 			[OUTERLINE]: GoalOutline("#008595", "#00deff"),
 		},
 	},
-	{ type: "image", blend: "overlay", path: "../tier/goal_overlay.png" },
+	{ type: "image", blend: "overlay", path: "./tier/goal_overlay.png" },
 ]);
 
 new Tier("Goal 2", [
@@ -376,7 +406,7 @@ new Tier("Goal 2", [
 			[OUTERLINE]: GoalOutline("#ed106f", "#ff89e7"),
 		},
 	},
-	{ type: "image", blend: "overlay", path: "../tier/goal2_overlay.png" },
+	{ type: "image", blend: "overlay", path: "./tier/goal2_overlay.png" },
 ]);
 
 new Tier("Fortune", [
@@ -390,7 +420,7 @@ new Tier("Fortune", [
 			[OUTERLINE]: "#f01700",
 		},
 	},
-	{ type: "image", blend: "overlay", path: "../tier/fortune_overlay.png" },
+	{ type: "image", blend: "overlay", path: "./tier/fortune_overlay.png" },
 ]);
 
 // Kiz3r's Tier just really fits into vanilla
@@ -405,7 +435,7 @@ new Tier("Misfortune", [
 			[OUTERLINE]: "#dc4162",
 		},
 	},
-	{ type: "image", blend: "overlay", path: "../tier/misfortune_overlay.png" },
+	{ type: "image", blend: "overlay", path: "./tier/misfortune_overlay.png" },
 ]);
 
 new Tier("Addon", [
@@ -505,7 +535,7 @@ new Tier("Skully Tier 2", [
 
 new Tier("Orange", [
 	{
-		type: "outline",
+		type: "sparkles",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -518,7 +548,7 @@ new Tier("Orange", [
 
 new Tier("Red/Black", [
 	{
-		type: "outline",
+		type: "sprkoutline",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -531,7 +561,7 @@ new Tier("Red/Black", [
 
 new Tier("Orange/Yellow", [
 	{
-		type: "outline",
+		type: "sprkoutline",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -544,7 +574,7 @@ new Tier("Orange/Yellow", [
 
 new Tier("Purple/Light Pink/Dark Pink", [
 	{
-		type: "outline",
+		type: "sprkoutline",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -557,7 +587,7 @@ new Tier("Purple/Light Pink/Dark Pink", [
 
 new Tier("Neapolitan", [
 	{
-		type: "outline",
+		type: "sprkoutline",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -570,7 +600,7 @@ new Tier("Neapolitan", [
 
 new Tier("Red with orange outline", [
 	{
-		type: "outline",
+		type: "sprkoutline",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -598,10 +628,10 @@ new Tier("Raingrid", [
 	{
 		type: "outline",
 		palette: {
-			[HIGHLIGHT]: { type: "image", path: "../tier/raingrid/raingrid_middle.png" },
-			[MAIN_____]: { type: "image", path: "../tier/raingrid/raingrid_middle.png" },
-			[SHADOW___]: { type: "image", path: "../tier/raingrid/raingrid_middle.png" },
-			[OUTLINE__]: { type: "image", path: "../tier/raingrid/raingrid_outline.png" },
+			[HIGHLIGHT]: { type: "image", path: "./tier/raingrid/raingrid_middle.png" },
+			[MAIN_____]: { type: "image", path: "./tier/raingrid/raingrid_middle.png" },
+			[SHADOW___]: { type: "image", path: "./tier/raingrid/raingrid_middle.png" },
+			[OUTLINE__]: { type: "image", path: "./tier/raingrid/raingrid_outline.png" },
 			[OUTERLINE]: IridyumOutline,
 		},
 	},
@@ -648,7 +678,7 @@ new Tier("sans", [
 
 new Tier("White and Black stripes with sparkles", [
 	{
-		type: "outline",
+		type: "sprkoutline",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -661,7 +691,7 @@ new Tier("White and Black stripes with sparkles", [
 
 new Tier("White and Brown stripes with sparkles", [
 	{
-		type: "outline",
+		type: "sprkoutline",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -674,7 +704,7 @@ new Tier("White and Brown stripes with sparkles", [
 
 new Tier("syrup", [
 	{
-		type: "outline",
+		type: "drip",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -700,7 +730,7 @@ new Tier("gold with outline rainbow", [
 
 new Tier("light red", [
 	{
-		type: "outline",
+		type: "basic",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -714,7 +744,7 @@ new Tier("light red", [
 new Tier("ikea", [
 	// I know that's not what it is but that's what it reminds me of
 	{
-		type: "outline",
+		type: "basic",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -727,7 +757,7 @@ new Tier("ikea", [
 
 new Tier("Templatierium", [
 	{
-		type: "outline",
+		type: "basic",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -753,7 +783,7 @@ new Tier("Halo", [
 
 new Tier("egg.", [
 	{
-		type: "outline",
+		type: "basic",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -766,7 +796,7 @@ new Tier("egg.", [
 
 new Tier("Building Cookie", [
 	{
-		type: "outline",
+		type: "basic",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -779,7 +809,7 @@ new Tier("Building Cookie", [
 
 new Tier("Honey", [
 	{
-		type: "outline",
+		type: "drip",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -805,7 +835,7 @@ new Tier("Gray with downwards orange gradient", [
 
 new Tier("Green with downwards orange gradient", [
 	{
-		type: "outline",
+		type: "basic",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -818,7 +848,7 @@ new Tier("Green with downwards orange gradient", [
 
 new Tier("green", [
 	{
-		type: "outline",
+		type: "basic",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -831,7 +861,7 @@ new Tier("green", [
 
 new Tier("light brown", [
 	{
-		type: "outline",
+		type: "basic",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -844,7 +874,7 @@ new Tier("light brown", [
 
 new Tier("Red with blue sparkles", [
 	{
-		type: "outline",
+		type: "sprkoutline",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -870,39 +900,68 @@ new Tier("Goal 3", [
 
 new Tier("Synergy III", [
 	{
-		type: "outline",
+		type: "basic",
 		palette: {
-			[HIGHLIGHT]: "#ff0000",
-			[MAIN_____]: "#ff0000",
-			[SHADOW___]: "#ff0000",
-			[OUTLINE__]: "#ff0000",
-			[OUTERLINE]: "#ff0000",
+			[HIGHLIGHT]: "#a8bf91",
+			[MAIN_____]: "#7e7ab9",
+			[SHADOW___]: "#414e7d",
+			[OUTLINE__]: "#112d3f",
 		},
-	},
+		offset: [2, 2],
+	}, // Below
+	{
+		type: "basic",
+		palette: {
+			[HIGHLIGHT]: "#ff7e00",
+			[MAIN_____]: "#f01700",
+			[SHADOW___]: "#8c0000",
+			[OUTLINE__]: "#450110",
+		},
+		offset: [-2, -2],
+	}, // Above
 ]);
 
 new Tier("Synergy IIII", [
 	{
-		type: "outline",
+		type: "basic",
 		palette: {
-			[HIGHLIGHT]: "#ff0000",
-			[MAIN_____]: "#ff0000",
-			[SHADOW___]: "#ff0000",
-			[OUTLINE__]: "#ff0000",
-			[OUTERLINE]: "#ff0000",
+			[HIGHLIGHT]: "#ff7e00",
+			[MAIN_____]: "#f01700",
+			[SHADOW___]: "#8c0000",
+			[OUTLINE__]: "#450110",
 		},
-	},
+		offset: [2, 2],
+	}, // Below
+	{
+		type: "basic",
+		palette: {
+			[HIGHLIGHT]: "#a8bf91",
+			[MAIN_____]: "#7e7ab9",
+			[SHADOW___]: "#414e7d",
+			[OUTLINE__]: "#112d3f",
+		},
+		offset: [-2, -2],
+	}, // Above
 ]);
 
 new Tier("Deep Sea", [
 	{
-		type: "outline",
+		type: "basic",
 		palette: {
-			[HIGHLIGHT]: "#ff0000",
-			[MAIN_____]: "#ff0000",
-			[SHADOW___]: "#ff0000",
-			[OUTLINE__]: "#ff0000",
-			[OUTERLINE]: "#ff0000",
+			[HIGHLIGHT]: "#00000000",
+			[MAIN_____]: "#00000000",
+			[SHADOW___]: "#00000000",
+			[OUTLINE__]: "#008595",
+		},
+		offset: [-1, 0],
+	},
+	{
+		type: "basic",
+		palette: {
+			[HIGHLIGHT]: "#8c0000",
+			[MAIN_____]: "#8c0000",
+			[SHADOW___]: "#8c0000",
+			[OUTLINE__]: "#008595",
 		},
 	},
 ]);
@@ -935,7 +994,7 @@ new Tier("Nebula", [
 
 new Tier("bubblegum pink", [
 	{
-		type: "outline",
+		type: "sparkles",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -948,7 +1007,7 @@ new Tier("bubblegum pink", [
 
 new Tier("rich and bright orange", [
 	{
-		type: "outline",
+		type: "sparkles",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -974,7 +1033,7 @@ new Tier("Red with Brown outline", [
 
 new Tier("White with super sparkles", [
 	{
-		type: "outline",
+		type: "sparkles",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -987,7 +1046,7 @@ new Tier("White with super sparkles", [
 
 new Tier("Yellow with super sparkles", [
 	{
-		type: "outline",
+		type: "sparkles",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -1000,7 +1059,7 @@ new Tier("Yellow with super sparkles", [
 
 new Tier("FIRE", [
 	{
-		type: "outline",
+		type: "basic",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -1013,7 +1072,7 @@ new Tier("FIRE", [
 
 new Tier("DARK FIRE", [
 	{
-		type: "outline",
+		type: "basic",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -1026,7 +1085,7 @@ new Tier("DARK FIRE", [
 
 new Tier("Gray with background spiral", [
 	{
-		type: "outline",
+		type: "basic",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -1039,7 +1098,7 @@ new Tier("Gray with background spiral", [
 
 new Tier("Green checker with background spiral", [
 	{
-		type: "outline",
+		type: "basic",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -1052,7 +1111,7 @@ new Tier("Green checker with background spiral", [
 
 new Tier("Rainbow with background spiral", [
 	{
-		type: "outline",
+		type: "basic",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -1065,7 +1124,7 @@ new Tier("Rainbow with background spiral", [
 
 new Tier("Diagonal Purple / Black", [
 	{
-		type: "outline",
+		type: "sprkoutline",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -1078,7 +1137,7 @@ new Tier("Diagonal Purple / Black", [
 
 new Tier("Diagonal Rainbow", [
 	{
-		type: "outline",
+		type: "sparkles",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -1091,7 +1150,7 @@ new Tier("Diagonal Rainbow", [
 
 new Tier("muk", [
 	{
-		type: "outline",
+		type: "drip",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -1104,7 +1163,7 @@ new Tier("muk", [
 
 new Tier("Brown with green outline", [
 	{
-		type: "outline",
+		type: "sprkoutline",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -1117,7 +1176,7 @@ new Tier("Brown with green outline", [
 
 new Tier("Minecraft dirt", [
 	{
-		type: "outline",
+		type: "basic",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -1130,7 +1189,7 @@ new Tier("Minecraft dirt", [
 
 new Tier("Minecraft iron", [
 	{
-		type: "outline",
+		type: "basic",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -1143,7 +1202,7 @@ new Tier("Minecraft iron", [
 
 new Tier("Minecraft gold", [
 	{
-		type: "outline",
+		type: "basic",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -1156,7 +1215,7 @@ new Tier("Minecraft gold", [
 
 new Tier("Minecraft diamond", [
 	{
-		type: "outline",
+		type: "basic",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -1169,7 +1228,7 @@ new Tier("Minecraft diamond", [
 
 new Tier("Minecraft netherite", [
 	{
-		type: "outline",
+		type: "basic",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -1182,7 +1241,7 @@ new Tier("Minecraft netherite", [
 
 new Tier("red with a diagonal red to orange gradient outline", [
 	{
-		type: "outline",
+		type: "sprkoutline",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -1273,7 +1332,7 @@ new Tier("cookie with bg", [
 
 new Tier("cheated cookies taste awful", [
 	{
-		type: "outline",
+		type: "basic",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -1299,7 +1358,7 @@ new Tier("skully rainbow", [
 
 new Tier("heavenly chip tier", [
 	{
-		type: "outline",
+		type: "sprkoutline",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -1312,7 +1371,7 @@ new Tier("heavenly chip tier", [
 
 new Tier("dripy purple", [
 	{
-		type: "outline",
+		type: "dripoutline",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -1338,20 +1397,39 @@ new Tier("brown with downwards white to orange outline", [
 
 new Tier("green synergy-ish", [
 	{
-		type: "outline",
+		type: "basic",
 		palette: {
-			[HIGHLIGHT]: "#ff0000",
-			[MAIN_____]: "#ff0000",
-			[SHADOW___]: "#ff0000",
-			[OUTLINE__]: "#ff0000",
-			[OUTERLINE]: "#ff0000",
+			[HIGHLIGHT]: "#008595",
+			[MAIN_____]: "#008595",
+			[SHADOW___]: "#008595",
+			[OUTLINE__]: "#008595",
+		},
+		offset: [2, 2],
+	},
+	{
+		type: "basic",
+		palette: {
+			[HIGHLIGHT]: "#8c0000",
+			[MAIN_____]: "#8c0000",
+			[SHADOW___]: "#8c0000",
+			[OUTLINE__]: "#8c0000",
+		},
+		offset: [-2, -2],
+	},
+	{
+		type: "basic",
+		palette: {
+			[HIGHLIGHT]: "#ffffff",
+			[MAIN_____]: "#a8bf91",
+			[SHADOW___]: "#526f4d",
+			[OUTLINE__]: "#173e20",
 		},
 	},
 ]);
 
 new Tier("red with vines and sparkle", [
 	{
-		type: "outline",
+		type: "basic",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -1364,7 +1442,7 @@ new Tier("red with vines and sparkle", [
 
 new Tier("transparent with crazy brown outline", [
 	{
-		type: "outline",
+		type: "basic",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -1429,7 +1507,7 @@ new Tier("green/orange skully", [
 
 new Tier("flat purple with gold outline", [
 	{
-		type: "outline",
+		type: "basic",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -1442,7 +1520,7 @@ new Tier("flat purple with gold outline", [
 
 new Tier("blue with purple outline", [
 	{
-		type: "outline",
+		type: "basic",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -1468,7 +1546,7 @@ new Tier("blue with iridyum outline", [
 
 new Tier("prism skully", [
 	{
-		type: "outline",
+		type: "basic",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -1481,7 +1559,7 @@ new Tier("prism skully", [
 
 new Tier("green plant tier", [
 	{
-		type: "outline",
+		type: "basic",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -1505,9 +1583,22 @@ new Tier("skully blue/white", [
 	},
 ]);
 
+new Tier("inverted white", [
+	{
+		type: "basic",
+		palette: {
+			[HIGHLIGHT]: "#ff0000",
+			[MAIN_____]: "#ff0000",
+			[SHADOW___]: "#ff0000",
+			[OUTLINE__]: "#ff0000",
+			[OUTERLINE]: "#ff0000",
+		},
+	},
+]);
+
 new Tier("blue/orange", [
 	{
-		type: "outline",
+		type: "sprkoutline",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -1533,7 +1624,7 @@ new Tier("skully rainbow", [
 
 new Tier("ivory white tier", [
 	{
-		type: "outline",
+		type: "basic",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -1559,7 +1650,18 @@ new Tier("white with yellow outline", [
 
 new Tier("synergy left", [
 	{
-		type: "outline",
+		type: "basic",
+		palette: {
+			[HIGHLIGHT]: "#ff0000",
+			[MAIN_____]: "#ff0000",
+			[SHADOW___]: "#ff0000",
+			[OUTLINE__]: "#ff0000",
+			[OUTERLINE]: "#ff0000",
+		},
+		offset: [-2, 0],
+	},
+	{
+		type: "basic",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -1572,7 +1674,18 @@ new Tier("synergy left", [
 
 new Tier("synergy up", [
 	{
-		type: "outline",
+		type: "basic",
+		palette: {
+			[HIGHLIGHT]: "#ff0000",
+			[MAIN_____]: "#ff0000",
+			[SHADOW___]: "#ff0000",
+			[OUTLINE__]: "#ff0000",
+			[OUTERLINE]: "#ff0000",
+		},
+		offset: [0, 2],
+	},
+	{
+		type: "basic",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -1585,7 +1698,7 @@ new Tier("synergy up", [
 
 new Tier("cosmic thingy", [
 	{
-		type: "outline",
+		type: "basic",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -1598,7 +1711,7 @@ new Tier("cosmic thingy", [
 
 new Tier("dripy white blue thingy", [
 	{
-		type: "outline",
+		type: "dripoutline",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -1611,7 +1724,7 @@ new Tier("dripy white blue thingy", [
 
 new Tier("minecraft dirt hd", [
 	{
-		type: "outline",
+		type: "basic",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -1624,7 +1737,7 @@ new Tier("minecraft dirt hd", [
 
 new Tier("bubblegum", [
 	{
-		type: "outline",
+		type: "basic",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -1637,7 +1750,7 @@ new Tier("bubblegum", [
 
 new Tier("ornament tier", [
 	{
-		type: "outline",
+		type: "basic",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -1648,20 +1761,16 @@ new Tier("ornament tier", [
 	},
 ]);
 
-/**
- * @type {IGradient}
- */
-const FlatIridyum = {
-	type: "gradient",
+const FlatIridyum = BalancedGradient({
 	height: 24,
 	width: 24,
 	ramp: [
-		{ color: "#414E7D", width: 6 },
-		{ color: "#432D2A", width: 6 },
-		{ color: "#340C02", width: 6 },
-		{ color: "#0A0508", width: 6 },
+		{ color: "#414E7D" },
+		{ color: "#432D2A" },
+		{ color: "#340C02" },
+		{ color: "#0A0508" },
 	],
-};
+});
 
 new Tier("flat iriydum", [
 	{
@@ -1678,7 +1787,7 @@ new Tier("flat iriydum", [
 
 new Tier("sparkly blue", [
 	{
-		type: "outline",
+		type: "sparkles",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -1691,7 +1800,7 @@ new Tier("sparkly blue", [
 
 new Tier("sparkly white", [
 	{
-		type: "outline",
+		type: "sparkles",
 		palette: {
 			[HIGHLIGHT]: "#ff0000",
 			[MAIN_____]: "#ff0000",
@@ -1728,7 +1837,137 @@ new Tier("yellow with purple outline", [
 	},
 ]);
 
-new Tier("sparkly blue", [
+new Tier("sparkly pink", [
+	{
+		type: "basic",
+		palette: {
+			[HIGHLIGHT]: "#ff0000",
+			[MAIN_____]: "#ff0000",
+			[SHADOW___]: "#ff0000",
+			[OUTLINE__]: "#ff0000",
+			[OUTERLINE]: "#ff0000",
+		},
+	},
+]);
+
+new Tier("purple soul", [
+	{
+		type: "basic",
+		palette: {
+			[HIGHLIGHT]: "#ff0000",
+			[MAIN_____]: "#ff0000",
+			[SHADOW___]: "#ff0000",
+			[OUTLINE__]: "#ff0000",
+			[OUTERLINE]: "#ff0000",
+		},
+	},
+]);
+
+new Tier("cyan soul", [
+	{
+		type: "basic",
+		palette: {
+			[HIGHLIGHT]: "#ff0000",
+			[MAIN_____]: "#ff0000",
+			[SHADOW___]: "#ff0000",
+			[OUTLINE__]: "#ff0000",
+			[OUTERLINE]: "#ff0000",
+		},
+	},
+]);
+
+new Tier("blue soul", [
+	{
+		type: "basic",
+		palette: {
+			[HIGHLIGHT]: "#ff0000",
+			[MAIN_____]: "#ff0000",
+			[SHADOW___]: "#ff0000",
+			[OUTLINE__]: "#ff0000",
+			[OUTERLINE]: "#ff0000",
+		},
+	},
+]);
+
+new Tier("orange soul", [
+	{
+		type: "basic",
+		palette: {
+			[HIGHLIGHT]: "#ff0000",
+			[MAIN_____]: "#ff0000",
+			[SHADOW___]: "#ff0000",
+			[OUTLINE__]: "#ff0000",
+			[OUTERLINE]: "#ff0000",
+		},
+	},
+]);
+
+new Tier("green soul", [
+	{
+		type: "basic",
+		palette: {
+			[HIGHLIGHT]: "#ff0000",
+			[MAIN_____]: "#ff0000",
+			[SHADOW___]: "#ff0000",
+			[OUTLINE__]: "#ff0000",
+			[OUTERLINE]: "#ff0000",
+		},
+	},
+]);
+
+new Tier("red/yellow green", [
+	{
+		type: "outline",
+		palette: {
+			[HIGHLIGHT]: "#ff0000",
+			[MAIN_____]: "#ff0000",
+			[SHADOW___]: "#ff0000",
+			[OUTLINE__]: "#ff0000",
+			[OUTERLINE]: "#ff0000",
+		},
+	},
+]);
+
+new Tier("light-cyan pink", [
+	{
+		type: "outline",
+		palette: {
+			[HIGHLIGHT]: "#ff0000",
+			[MAIN_____]: "#ff0000",
+			[SHADOW___]: "#ff0000",
+			[OUTLINE__]: "#ff0000",
+			[OUTERLINE]: "#ff0000",
+		},
+	},
+]);
+
+new Tier("blue/cyan purple", [
+	{
+		type: "outline",
+		palette: {
+			[HIGHLIGHT]: "#ff0000",
+			[MAIN_____]: "#ff0000",
+			[SHADOW___]: "#ff0000",
+			[OUTLINE__]: "#ff0000",
+			[OUTERLINE]: "#ff0000",
+		},
+	},
+]);
+
+new Tier("Special red but with yellow pink/blue", [
+	{
+		type: "outline",
+		palette: {
+			[HIGHLIGHT]: "#ff0000",
+			[MAIN_____]: "#ff0000",
+			[SHADOW___]: "#ff0000",
+			[OUTLINE__]: "#ff0000",
+			[OUTERLINE]: "#ff0000",
+		},
+	},
+]);
+
+new Tier("cyan/light-cyan gray", [
 	{
 		type: "outline",
 		palette: {

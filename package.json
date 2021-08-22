@@ -2,17 +2,18 @@
 	"name": "tier-retierer",
 	"version": "0.0.0",
 	"description": "",
-	"main": "app/app.js",
+	"main": "app/main.js",
 	"scripts": {
 		"unit": "grunt unit",
 		"e2e": "grunt e2e",
 		"test": "grunt test",
-		"start": "grunt build && node ./app/app.js",
+		"start": "grunt build && node ./app/main.js",
 		"lint": "grunt lint"
 	},
-	"keywords": [
-		"template"
-	],
+	"keywords": [],
+	"bin": {
+		"retier": "./app/cli.js"
+	},
 	"author": "Bob Varioa",
 	"license": "MIT",
 	"devDependencies": {
@@ -30,6 +31,9 @@
 	},
 	"dependencies": {
 		"canvas": "^2.7.0",
-		"lodash.clonedeep": "^4.5.0"
+		"color-parse": "^1.4.2",
+		"color-space": "^1.16.0",
+		"lodash.clonedeep": "^4.5.0",
+		"yargs": "^17.0.1"
 	}
 }

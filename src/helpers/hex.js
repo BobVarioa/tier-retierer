@@ -1,74 +1,56 @@
-/**
- *
- * @param {string} hex
- * @returns {boolean}
- */
- function isValidHex(hex) {
-	return /^#([A-Fa-f0-9]{3,4}){1,2}$/.test(hex);
-}
+import parse from "color-parse";
+import hsl from "color-space/hsl";
 
-/**
- * @param {string} st
- * @param {number} chunkSize
- */
-function getChunksFromString(st, chunkSize) {
-	return st.match(new RegExp(`.{${chunkSize}}`, "g"));
-}
-
-/**
- * @param {string} hexStr
- */
-function convertHexUnitTo256(hexStr) {
-	return parseInt(hexStr.repeat(2 / hexStr.length), 16);
-}
-
-/**
- * @param {number} a
- * @param {number} alpha
- */
-function getAlphafloat(a, alpha) {
-	if (typeof a !== "undefined") return a / 255;
-
-	if (typeof alpha !== "number" || alpha < 0 || alpha > 1) return 1;
-
-	return alpha;
-}
 /**
  * From : https://stackoverflow.com/a/53936623
- * @param {string} hex
- * @param {number=} alpha
+ * @param {string} str
  * @returns {[r: number, g: number, b: number, a: number]}
  */
-export function hexToRGBA(hex, alpha) {
-	if (!isValidHex(hex)) throw new Error(`Invalid HEX : ${hex}`);
+export function colorToRGBA(str) {
+	const color = parse(str);
 
-	const chunkSize = Math.floor((hex.length - 1) / 3);
-	const hexArr = getChunksFromString(hex.slice(1), chunkSize);
-	const [r, g, b, a] = hexArr.map(convertHexUnitTo256);
-	return [r, g, b, getAlphafloat(a, alpha)];
+	if (!color.space) throw new Error("Not a color");
+
+	const rgb = color.values;
+	const a = Math.min(
+		Math.max(
+			Math.floor(
+				(typeof color.alpha === "undefined" ? 1 : color.alpha) * 255
+			),
+			0
+		),
+		255
+	);
+
+	// Handles hsl
+	const [r, g, b] = color.space.startsWith("h") ? hsl.rgb(rgb) : rgb;
+	return [r, g, b, a];
 }
-
-export const isLittleEndian = (() => {
-	const array = new Uint8Array(4);
-	const view = new Uint32Array(array.buffer);
-	// eslint-disable-next-line no-return-assign
-	return !!((view[0] = 1) & array[0]);
-})();
 
 /**
- * @param {number} r
- * @param {number} g
- * @param {number} b
- * @param {number} a
+ * @param {string} hex
+ * @returns {number}
  */
-export function RGBAtoHexA(r, g, b, a) {
-	const rgba = Uint8Array.of(
-		...(isLittleEndian ? [Math.min(Math.ceil(a * 255), 255), b, g, r]: [r, g, b, Math.min(Math.ceil(a * 255), 255)])
-	);
-	return `#${new Uint32Array(rgba.buffer, rgba.byteOffset, 1)[0].toString(16)}`;
+export function colorToUInt32(hex) {
+	return RGBAToUInt32(...colorToRGBA(hex));
 }
 
+const view4 = new DataView(new ArrayBuffer(4));
 
-export function normalizeHex(hex) {
-	return RGBAtoHexA(...hexToRGBA(hex));
+export function UInt32ToRGBA(num) {
+	view4.setUint32(0, num);
+	return [
+		view4.getUint8(0),
+		view4.getUint8(1),
+		view4.getUint8(2),
+		view4.getUint8(3),
+	];
+}
+
+export function RGBAToUInt32(r, g, b, a) {
+	view4.setUint8(0, r);
+	view4.setUint8(1, g);
+	view4.setUint8(2, b);
+	view4.setUint8(3, a);
+	return view4.getUint32(0);
 }

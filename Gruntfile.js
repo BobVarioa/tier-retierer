@@ -57,7 +57,7 @@ module.exports = (grunt) => {
 		esbuild: {
 			main: {
 				platform: "node",
-				entryPoints: ["jscc_temp/src/app.js"],
+				entryPoints: ["jscc_temp/src/main.js"],
 				...esbuildMix,
 			},
 		},

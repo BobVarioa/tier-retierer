@@ -3,7 +3,7 @@
 		"jsx": "react-jsx",
 		"jsxImportSource": "preact",
 		"checkJs": true,
-		"target": "ES6",
+		"target": "es2020",
 		"moduleResolution": "node",
 		"typeRoots": ["./node_modules/@types/"],
 		"experimentalDecorators": true,
