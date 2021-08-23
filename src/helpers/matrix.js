@@ -1,7 +1,8 @@
 import { createCanvas, loadImage, ImageData } from "canvas";
-import { cachify, parallelizeOver, safeKeys } from "./common";
+import { safeKeys } from "./common";
 import { RGBAToUInt32, colorToUInt32, colorToRGBA } from "./hex";
 import path from "path";
+import { cachify, cachifyAsync, ValueKeyedMap } from "./cache";
 
 /** @implements {Matrixy} */
 export class Matrix {
@@ -138,10 +139,7 @@ export class Matrix {
 			if (typeof replaceWith === "string") {
 				normalizedPalette.set(key, new ColorMatrix(colorToRGBA(replaceWith)));
 			} else if (replaceWith.type === "image") {
-				normalizedPalette.set(
-					key,
-					ImageMatrix.create(await loadImage(path.join(process.cwd(), replaceWith.path)))
-				);
+				normalizedPalette.set(key, await ImageMatrix.create(replaceWith.path));
 			} else if (replaceWith.type === "gradient") {
 				normalizedPalette.set(key, GradientMatrix.create(replaceWith));
 			}
@@ -168,43 +166,36 @@ export class Matrix {
 }
 
 export class ImageMatrix extends Matrix {
-	static cache = new Map();
+	/**@type {ValueKeyedMap<string | import("canvas").Image, ImageMatrix>} */
+	static cache = new ValueKeyedMap();
 
 	/**
 	 * Creates a instance of a ImageMatrix
-	 * @param {import("canvas").Image} src
-	 * @param {any?} opts
-	 * @returns {Matrix}
+	 * @param {string | import("canvas").Image} src
+	 * @returns {Promise<ImageMatrix>}
 	 */
-	static create(src, opts = {}) {
-		return cachify(ImageMatrix.cache, { src, opts }, ImageMatrix.#createBase);
+	static async create(src) {
+		return await cachifyAsync(ImageMatrix.cache, src, ImageMatrix.#createBase);
 	}
 
 	/**
-	 * @param {{src : import("canvas").Image, opts: any?}} key
-	 * @returns {Matrix}
+	 * @param {string | import("canvas").Image} src
+	 * @returns {Promise<Matrix>}
 	 */
-	static #createBase({ src, opts = {} }) {
-		const obj = new ImageMatrix(src.width, src.height);
+	static async #createBase(src) {
+		let img = src;
+		if (typeof img == "string") img = await loadImage(path.join(process.cwd(), img));
 
-		obj.putImageData(src);
-
+		const obj = new ImageMatrix(img.width, img.height);
+		const ctx = createCanvas(obj.width, obj.height).getContext("2d");
+		ctx.drawImage(img, 0, 0);
+		obj.data = ctx.getImageData(0, 0, obj.width, obj.height).data;
 		return obj;
-	}
-
-	/**
-	 *
-	 * @param {import("canvas").Image} image
-	 */
-	putImageData(image) {
-		const ctx = createCanvas(this.width, this.height).getContext("2d");
-		ctx.drawImage(image, 0, 0);
-		this.data = ctx.getImageData(0, 0, this.width, this.height).data;
 	}
 }
 
 export class GradientMatrix extends Matrix {
-	static cache = new Map();
+	static cache = new ValueKeyedMap();
 
 	/**
 	 * Creates a instance of a GradientMatrix

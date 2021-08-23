@@ -27,15 +27,20 @@ function createObject(keys, values) {
  */
 function templateImageFunc(templateImage) {
 	return async (oldmatrix, { palette, offset, blend, first = false }) => {
-		const matrix = ImageMatrix.create(templateImage);
-		await matrix.replaceColor(palette);
-		if (first) return matrix;
-		if (blend === "underlay") {
-			matrix.merge(oldmatrix, offset);
-			return matrix;
+		let matrix = await ImageMatrix.create(templateImage);
+		try {
+			await matrix.replaceColor(palette);
+			if (first) return matrix;
+			if (blend === "underlay") {
+				matrix.merge(oldmatrix, offset);
+				return matrix;
+			}
+			oldmatrix.merge(matrix, offset);
+			return oldmatrix;
+		} catch (e) {
+			console.log(matrix.replaceColor);
+			return oldmatrix;
 		}
-		oldmatrix.merge(matrix, offset);
-		return oldmatrix;
 	};
 }
 
@@ -44,7 +49,7 @@ function templateImageFunc(templateImage) {
  */
 const baseActions = {
 	async image(oldmatrix, { palette, path, offset, blend, first = false }) {
-		const matrix = ImageMatrix.create(await loadImage(path));
+		const matrix = await ImageMatrix.create(path);
 		await matrix.replaceColor(palette);
 		if (first) return matrix;
 		if (blend === "underlay") {

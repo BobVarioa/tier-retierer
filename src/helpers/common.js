@@ -1,5 +1,3 @@
-import cloneDeep from "lodash.clonedeep";
-
 export function* range(min, max) {
 	for (let i = min; i <= max; i++) yield i;
 }
@@ -17,14 +15,14 @@ export function* mapIterator(iter, func) {
 }
 
 /**
- * 
- * @param {PromiseSettledResult<any>} v 
- * @returns 
+ *
+ * @param {PromiseSettledResult<any>} v
+ * @returns
  */
 function parallelize_filter(v) {
 	if (v.status == "fulfilled") return v.value;
 	else {
-		console.warn(`Promise Rejected during parallelize: ${v.reason}`)
+		console.warn(`Promise Rejected during parallelize: ${v.reason}`);
 	}
 }
 
@@ -40,16 +38,8 @@ export async function parallelizeOverSettled(arr, func) {
  *
  * @type {<K, V>(arr: Iterable<K>, func: (value: K, index: number) => Promise<V>) => Promise<V[]>}
  */
- export async function parallelizeOver(arr, func) {
-	return (await Promise.all(mapIterator(arr, func)));
-}
-
-export function cachify(cache, key, func) {
-	if (cache.has(key)) return cloneDeep(cache.get(key));
-
-	const obj = func(key);
-	cache.set(key, cloneDeep(obj));
-	return obj;
+export async function parallelizeOver(arr, func) {
+	return await Promise.all(mapIterator(arr, func));
 }
 
 /** @type {<V>(obj: V) => Iterable<keyof V>} */
