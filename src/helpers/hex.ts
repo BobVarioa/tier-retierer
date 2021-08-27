@@ -1,21 +1,20 @@
-import parse from "color-parse";
+import rawParse from "color-parse";
 import hsl from "color-space/hsl";
-import { cachify } from "./cache";
+import { cachifyRaw } from "./cache";
 
-const cached_parse = (() => {
-	/** @type {Map<string, any>} */
-	const cache = new Map();
-	return function (color) {
-		return cachify(cache, color, parse);
-	};
-})();
+type ColorData = {
+	space: string,
+	alpha: number,
+	values: number[]
+}
 
-/**
- * @param {string} str
- * @returns {[r: number, g: number, b: number, a: number]}
- */
-export function colorToRGBA(str) {
-	const color = cached_parse(str);
+const parseCache = new Map<string, ColorData>();
+export function parse (str: string) {
+	return cachifyRaw(parseCache, str, rawParse as (str: string) => ColorData) 
+};
+
+export function colorToRGBA(str: string): RGBAPixel {
+	const color = parse(str);
 
 	if (!color.space) throw new Error("Not a color");
 
@@ -29,11 +28,7 @@ export function colorToRGBA(str) {
 	return [r, g, b, a];
 }
 
-/**
- * @param {string} hex
- * @returns {number}
- */
-export function colorToUInt32(hex) {
+export function colorToUInt32(hex: string): number {
 	return RGBAToUInt32(...colorToRGBA(hex));
 }
 
@@ -51,3 +46,5 @@ export function RGBAToUInt32(r, g, b, a) {
 	view4.setUint8(3, a);
 	return view4.getUint32(0);
 }
+
+export type RGBAPixel = [R: number, G: number, B: number, A: number];

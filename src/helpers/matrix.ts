@@ -1,8 +1,8 @@
 import { createCanvas, loadImage, ImageData } from "canvas";
-import { safeKeys } from "./common";
-import { RGBAToUInt32, colorToUInt32, colorToRGBA } from "./hex";
+import { keys } from "./common";
+import { RGBAToUInt32, colorToUInt32, colorToRGBA, RGBAPixel } from "./hex";
 import path from "path";
-import { cachify, cachifyAsync, ValueKeyedMap } from "./cache";
+import { ValueKeyedMap, cachify, cachifyAsync } from "./cache";
 
 /** @implements {Matrixy} */
 export class Matrix {
@@ -18,28 +18,13 @@ export class Matrix {
 		this.height = height;
 	}
 
-	/**
-	 * @type {number}
-	 */
-	width;
+	width: number;
 
-	/**
-	 * @type {number}
-	 */
-	height;
+	height: number;
 
-	/**
-	 * @type {Uint8ClampedArray}
-	 */
-	data;
+	data: Uint8ClampedArray;
 
-	/**
-	 *
-	 * @param {number} x
-	 * @param {number} y
-	 * @returns {[R: number, G: number, B: number, A: number]}
-	 */
-	getPixel(x, y) {
+	getPixel(x: number, y: number): RGBAPixel {
 		if (typeof this.width !== "undefined") {
 			const index = x * 4 + this.width * 4 * y;
 			return [
@@ -63,13 +48,7 @@ export class Matrix {
 		}
 	}
 
-	/**
-	 *
-	 * @param {number} x
-	 * @param {number} y
-	 * @param {[R: number, G: number, B: number, A: number]} val
-	 */
-	setPixel(x, y, val) {
+	setPixel(x: number, y: number, val: RGBAPixel) {
 		if (typeof this.width !== "undefined") {
 			const index = x * 4 + this.width * 4 * y;
 			this.data[index] = val[0];
@@ -94,11 +73,7 @@ export class Matrix {
 		return new ImageData(this.data, this.width, this.height);
 	}
 
-	/**
-	 * @param {Matrix} newmatrix
-	 * @param {[oftX?: number, oftY?: number]?} opts
-	 */
-	merge(newmatrix, [oftX = 0, oftY = 0] = []) {
+	merge(newmatrix: Matrix, [oftX = 0, oftY = 0]: [oftX?: number, oftY?: number] | null = []) {
 		for (const px of this) {
 			if (typeof this.getPixel(px.x + oftX, px.y + oftY) === "undefined") continue;
 			const newPx = newmatrix.getPixel(px.x, px.y);
@@ -113,7 +88,7 @@ export class Matrix {
 	 */
 	getPalette() {
 		/** @type {Record<string, number[][]>} */
-		const colorMap = {};
+		const colorMap: Record<string, number[][]> = {};
 
 		for (const px of this) {
 			const key = RGBAToUInt32(...this.getPixel(px.x, px.y));
@@ -124,14 +99,15 @@ export class Matrix {
 		return colorMap;
 	}
 
-	/**
-	 *
-	 * @param {Record<string, string | { type: "image", path: string } | { type: "gradient", [K: string]: any}>} palette
-	 */
-	static async normalizePalette(palette) {
+	static async normalizePalette(
+		palette: Record<
+			string,
+			string | { type: "image"; path: string } | { type: "gradient"; [K: string]: any }
+		>
+	) {
 		/** @type {Map<number, Matrixy>} */
-		const normalizedPalette = new Map();
-		for (const color of safeKeys(palette)) {
+		const normalizedPalette: Map<number, Matrixy> = new Map();
+		for (const color of keys(palette)) {
 			const replaceWith = palette[color];
 			if (typeof replaceWith === "undefined") continue;
 
@@ -147,10 +123,12 @@ export class Matrix {
 		return normalizedPalette;
 	}
 
-	/**
-	 * @param {Record<string, string | { type: "image", path: string } | { type: "gradient", [K: string]: any} >} colors
-	 */
-	async replaceColor(colors) {
+	async replaceColor(
+		colors: Record<
+			string,
+			string | { type: "image"; path: string } | { type: "gradient"; [K: string]: any }
+		>
+	) {
 		if (typeof colors == "undefined") return;
 		const colorMap = await Matrix.normalizePalette(colors);
 
@@ -165,24 +143,11 @@ export class Matrix {
 	}
 }
 
+type ImageResolvable = string | import("canvas").Image;
+
 export class ImageMatrix extends Matrix {
-	/**@type {ValueKeyedMap<string | import("canvas").Image, ImageMatrix>} */
-	static cache = new ValueKeyedMap();
-
-	/**
-	 * Creates a instance of a ImageMatrix
-	 * @param {string | import("canvas").Image} src
-	 * @returns {Promise<ImageMatrix>}
-	 */
-	static async create(src) {
-		return await cachifyAsync(ImageMatrix.cache, src, ImageMatrix.#createBase);
-	}
-
-	/**
-	 * @param {string | import("canvas").Image} src
-	 * @returns {Promise<Matrix>}
-	 */
-	static async #createBase(src) {
+	@cachifyAsync(new ValueKeyedMap<ImageResolvable, ImageMatrix>())
+	static async create(src: ImageResolvable): Promise<ImageMatrix> {
 		let img = src;
 		if (typeof img == "string") img = await loadImage(path.join(process.cwd(), img));
 
@@ -195,22 +160,13 @@ export class ImageMatrix extends Matrix {
 }
 
 export class GradientMatrix extends Matrix {
-	static cache = new ValueKeyedMap();
-
-	/**
-	 * Creates a instance of a GradientMatrix
-	 * @param {any?} opts
-	 * @returns {Matrix}
-	 */
-	static create(opts = {}) {
-		return cachify(GradientMatrix.cache, { opts }, GradientMatrix.#createBase);
-	}
-
-	/**
-	 * @param {{opts: any?}} key
-	 * @returns {Matrix}
-	 */
-	static #createBase({ opts: { width = 1, height = 1, diagonal = "down", ramp = [] } = {} }) {
+	@cachify(new ValueKeyedMap<Partial<IGradient>, Matrix>())
+	static create({
+		width = 1,
+		height = 1,
+		diagonal = "down",
+		ramp = [],
+	}: Partial<IGradient>): Matrix {
 		const obj = new GradientMatrix(width, height);
 		obj.data = new Uint8ClampedArray(width * height * 4);
 
@@ -235,17 +191,8 @@ export class GradientMatrix extends Matrix {
 	}
 }
 
-/** @implements {Matrixy} */
-export class ColorMatrix {
-	color;
-
-	/**
-	 *
-	 * @param {[R: number, G: number, B: number, A: number]} color
-	 */
-	constructor(color) {
-		this.color = color;
-	}
+export class ColorMatrix implements Matrixy {
+	constructor(public color: RGBAPixel) {}
 
 	getPixel(x, y) {
 		return this.color;

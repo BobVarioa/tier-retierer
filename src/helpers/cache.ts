@@ -1,32 +1,23 @@
 import { deepEqual } from "fast-equals";
 import { qclone as deepClone } from "qclone";
 
-/**
- * @implements {Map}
- * @template K,V
- */
-export class ValueKeyedMap {
-	/** @type {K[]} */
-	#keys = [];
+export class ValueKeyedMap<K, V> implements Map<K, V> {
+	#keys: K[] = [];
 
-	/** @type {V[]} */
-	#data = [];
+	#data: V[] = [];
 
-	/** @type {(K) => number} */
-	#getKeyIndex(key) {
+	#getKeyIndex(key: K): number {
 		for (let i = 0; i < this.#keys.length; i++) {
 			if (deepEqual(this.#keys[i], key)) return i;
 		}
 		return -1;
 	}
 
-	/** @type {(K) => boolean} */
-	has(key) {
+	has(key: K): boolean {
 		return this.#getKeyIndex(key) > -1;
 	}
 
-	/** @type {(K) => V} */
-	get(key) {
+	get(key: K): V {
 		const keyIndex = this.#getKeyIndex(key);
 
 		if (keyIndex > -1) {
@@ -36,8 +27,7 @@ export class ValueKeyedMap {
 		}
 	}
 
-	/** @type {(K, V) => this} */
-	set(key, value) {
+	set(key: K, value: V): this {
 		const keyIndex = this.#getKeyIndex(key);
 
 		if (keyIndex > -1) {
@@ -50,31 +40,26 @@ export class ValueKeyedMap {
 		return this;
 	}
 
-	/** @type {() => void} */
-	clear() {
+	clear(): void {
 		this.#keys = [];
 		this.#data = [];
 	}
 
-	/** @type {() => IterableIterator<K>} */
-	*keys() {
+	*keys(): IterableIterator<K> {
 		yield* this.#keys;
 	}
 
-	/** @type {() => IterableIterator<V>} */
-	*values() {
+	*values(): IterableIterator<V> {
 		yield* this.#data;
 	}
 
-	/** @type {(callback: (value: V, key, K) => void) => void} */
-	forEach(callback) {
+	forEach(callback: (value: V, key: K, map: this) => void): void {
 		for (const [key, value] of this) {
-			callback(value, key);
+			callback(value, key, this);
 		}
 	}
 
-	/** @type {(key: K) => boolean} */
-	delete(key) {
+	delete(key: K): boolean {
 		const keyIndex = this.#getKeyIndex(key);
 
 		if (keyIndex > -1) {
@@ -84,18 +69,15 @@ export class ValueKeyedMap {
 		}
 	}
 
-	/** @type {number} */
 	get size() {
 		return this.#keys.length;
 	}
 
-	/** @type {() => IterableIterator<[K,V]>} */
-	*entries() {
+	*entries(): IterableIterator<[K, V]> {
 		yield* this;
 	}
 
-	/** @type {() => IterableIterator<[K,V]>} */
-	*[Symbol.iterator]() {
+	*[Symbol.iterator](): IterableIterator<[K, V]> {
 		for (let i = 0; i < this.#keys.length; i++) {
 			yield [this.#keys[i], this.#data[i]];
 		}
@@ -104,11 +86,7 @@ export class ValueKeyedMap {
 	[Symbol.toStringTag] = "CacheMap";
 }
 
-/**
- *
- * @type {<K, V>(cache: Map<K, V>, key: K, func: (key: K) => V) => V}
- */
-export function cachify(cache, key, func) {
+export function cachifyRaw<K, V>(cache: Map<K, V>, key: K, func: (key: K) => V): V {
 	if (cache.has(key)) return deepClone(cache.get(key));
 
 	const obj = func(key);
@@ -116,13 +94,32 @@ export function cachify(cache, key, func) {
 	return deepClone(obj);
 }
 
-/**
- * @type {<K, V>(cache: Map<K, V>, key: K, func: (key: K) => Promise<V>) => Promise<V>}
- */
-export async function cachifyAsync(cache, key, func) {
+export function cachify<K, V>(cache: Map<K, V>) {
+	return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+		const last = descriptor.value;
+		descriptor.value = (arg: K) => {
+			return cachifyRaw(cache, arg, last)
+		}
+	};
+}
+
+export async function cachifyAsyncRaw<K, V>(
+	cache: Map<K, V>,
+	key: K,
+	func: (key: K) => Promise<V>
+): Promise<V> {
 	if (cache.has(key)) return deepClone(cache.get(key));
 
 	const obj = await func(key);
 	cache.set(key, obj);
 	return deepClone(obj);
+}
+
+export function cachifyAsync<K, V>(cache: Map<K, V>) {
+	return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+		const last = descriptor.value;
+		descriptor.value = async (arg: K) => {
+			return await cachifyAsyncRaw(cache, arg, last)
+		}
+	};
 }

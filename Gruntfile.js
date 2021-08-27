@@ -34,7 +34,7 @@ module.exports = (grunt) => {
 		pkg: grunt.file.readJSON("package.json"),
 		watch: {
 			dev: {
-				files: ["src/**/*.js", "static/**/*"],
+				files: ["src/**/*.ts", "static/**/*"],
 				tasks: ["softbuild", "clean:jscc_temp"],
 				options: {
 					debounceDelay: 700,
@@ -45,11 +45,11 @@ module.exports = (grunt) => {
 			options: {
 				fix: true,
 			},
-			target: ["src/**/*.js"],
+			target: ["src/**/*.ts"],
 		},
 		jscc: {
 			dev: {
-				inpaths: [env === "test" ? "src/**/*.spec.js" : "src/**/*!(.spec).js"],
+				inpaths: [env === "test" ? "src/**/*.spec.ts" : "src/**/*!(.spec).ts"],
 				out: "jscc_temp",
 				...jsccMix,
 			},
@@ -57,7 +57,7 @@ module.exports = (grunt) => {
 		esbuild: {
 			main: {
 				platform: "node",
-				entryPoints: ["jscc_temp/src/main.js"],
+				entryPoints: ["jscc_temp/src/main.ts"],
 				...esbuildMix,
 			},
 		},

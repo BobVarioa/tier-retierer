@@ -1,7 +1,7 @@
 import { createCanvas, loadImage } from "canvas";
 import * as fs from "fs";
 import pathlib from "path";
-import { parallelizeOver, safeKeys } from "./helpers/common";
+import { parallelizeOver, keys } from "./helpers/common";
 import { getMultipleIcons } from "./helpers/main";
 import { ImageMatrix, Matrix } from "./helpers/matrix";
 
@@ -79,7 +79,7 @@ const baseActions = {
 async function imageexpr(num, file, templates, size, tiers, gctx) {
 	const actionMap = {
 		...createObject(
-			safeKeys(templates),
+			keys(templates),
 			(
 				await getMultipleIcons(await loadImage(file), [24, 24], Object.values(templates))
 			).map((v) => templateImageFunc(v))
@@ -87,7 +87,7 @@ async function imageexpr(num, file, templates, size, tiers, gctx) {
 		...baseActions,
 	};
 
-	await parallelizeOver(safeKeys(tiers), async (tier, i) => {
+	await parallelizeOver(keys(tiers), async (tier, i) => {
 		const actions = tiers[tier];
 		/** @type {Matrix} */
 		let matrix = await actionMap[actions[0].type](undefined, {
