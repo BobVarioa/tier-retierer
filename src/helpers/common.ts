@@ -1,16 +1,10 @@
-/**
- * @param {number} min
- * @param {number} max
- */
-export function* range(min, max) {
+export function* range(min: number, max: number) {
 	for (let i = min; i <= max; i++) yield i;
 }
 
-/**
- *
- * @type {<T extends Iterable<any>[]>(...iters: T) => T extends Iterable<infer K>[] ? Generator<K[]> : Generator<any>}
- */
-export function* concurrentIterators(...iters) {
+export function* concurrentIterators<T extends Iterable<any>[]>(
+	...iters: T
+): T extends Iterable<infer K>[] ? Generator<K[]> : Generator<any> {
 	const iterators = iters.map((v) => v[Symbol.iterator]());
 
 	let done = false;
@@ -27,11 +21,10 @@ export function* concurrentIterators(...iters) {
 	} while (done);
 }
 
-/**
- *
- * @type {<K, V>(iter: Iterable<K>, func: (value: K, index: number) => V) => Iterable<V>}
- */
-export function* mapIterator(iter, func) {
+export function* mapIterator<K, V>(
+	iter: Iterable<K>,
+	func: (value: K, index: number) => V
+): Iterable<V> {
 	let i = 0;
 	for (const ele of iter) {
 		yield func(ele, i);
@@ -39,23 +32,18 @@ export function* mapIterator(iter, func) {
 	}
 }
 
-/**
- *
- * @param {PromiseSettledResult<any>} v
- * @returns
- */
-function parallelize_filter(v) {
+function parallelize_filter(v: PromiseSettledResult<any>) {
 	if (v.status == "fulfilled") return v.value;
 	else {
 		console.warn(`Promise Rejected during parallelize: ${v.reason}`);
 	}
 }
 
-/**
- *
- * @type {<K, V>(arr: Iterable<K>, func: (value: K, index: number) => Promise<V>) => Promise<V[]>}
- */
-export async function parallelizeOver(arr, func, settled = false) {
+export async function parallelizeOver<K, V>(
+	arr: Iterable<K>,
+	func: (value: K, index: number) => Promise<V>,
+	settled = false
+): Promise<V[]> {
 	if (settled) {
 		return (await Promise.allSettled(mapIterator(arr, func))).map(parallelize_filter);
 	}
@@ -63,10 +51,12 @@ export async function parallelizeOver(arr, func, settled = false) {
 }
 
 /** @type {<V>(obj: V, hasOwn?: boolean) => Iterable<keyof V>} */
-export function* keys(obj, hasOwn = false) {
+export function* keys<V>(obj: V, hasOwn?: boolean): Iterable<keyof V> {
 	for (const k in obj) {
 		if (!hasOwn || {}.hasOwnProperty.call(obj, k)) {
 			yield k;
 		}
 	}
 }
+
+export type ImageResolvable = string | import("canvas").Image;

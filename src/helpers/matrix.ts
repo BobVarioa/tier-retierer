@@ -1,5 +1,5 @@
 import { createCanvas, loadImage, ImageData } from "canvas";
-import { keys } from "./common";
+import { ImageResolvable, keys } from "./common";
 import { RGBAToUInt32, colorToUInt32, colorToRGBA, RGBAPixel } from "./hex";
 import path from "path";
 import { ValueKeyedMap, cachify, cachifyAsync } from "./cache";
@@ -142,8 +142,6 @@ export class Matrix {
 		}
 	}
 }
-
-type ImageResolvable = string | import("canvas").Image;
 
 export class ImageMatrix extends Matrix {
 	@cachifyAsync(new ValueKeyedMap<ImageResolvable, ImageMatrix>())

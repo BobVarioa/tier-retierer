@@ -5,27 +5,22 @@ import { parallelizeOver, keys } from "./helpers/common";
 import { getMultipleIcons } from "./helpers/main";
 import { ImageMatrix, Matrix } from "./helpers/matrix";
 
-/**
- *
- * @type {<K extends (number | string | symbol), V>(keys: Iterable<K>, values: Iterable<V>) => Record<K, V>}
- */
-function createObject(keys, values) {
+function createObject<K extends number | string | symbol, V>(
+	keys: Iterable<K>,
+	values: Iterable<V>
+): Record<K, V> {
 	const iter = values[Symbol.iterator]();
 
-	/**
-	 * @type {Record<any, any>}
-	 */
-	const obj = {};
+	const obj = {} as Record<K, V>;
 	for (const k of keys) {
-		obj[k] = iter.next().value;
+		obj[k] = iter.next().value as V;
 	}
 	return obj;
 }
 
-/**
- * @type {(templateImage: import("canvas").Image) => ((oldmatrix: Matrix, rest: any) => Promise<Matrix>)}
- */
-function templateImageFunc(templateImage) {
+function templateImageFunc(
+	templateImage: import("canvas").Image
+): (oldmatrix: Matrix, rest: any) => Promise<Matrix> {
 	return async (oldmatrix, { palette, offset, blend, first = false }) => {
 		let matrix = await ImageMatrix.create(templateImage);
 		try {
@@ -44,10 +39,7 @@ function templateImageFunc(templateImage) {
 	};
 }
 
-/**
- * @type {Record<string, (oldmatrix: Matrix, rest: any) => Promise<Matrix>>}
- */
-const baseActions = {
+const baseActions: Record<string, (oldmatrix: Matrix, rest: any) => Promise<Matrix>> = {
 	async image(oldmatrix, { palette, path, offset, blend, first = false }) {
 		const matrix = await ImageMatrix.create(path);
 		await matrix.replaceColor(palette);
@@ -68,21 +60,27 @@ const baseActions = {
 
 /**
  *
- * @param {number} num
- * @param {string} file
- * @param {Record<string, [number, number]>} templates
- * @param {[number, number]} size
- * @param {Record<string, Action[]>} tiers
- * @param {import("canvas").CanvasRenderingContext2D} gctx
- * @returns {Promise<true>}
+ * @param num
+ * @param file
+ * @param templates
+ * @param size
+ * @param tiers
+ * @param gctx
  */
-async function imageexpr(num, file, templates, size, tiers, gctx) {
+async function imageexpr(
+	num: number,
+	file: string,
+	templates: Record<string, [number, number]>,
+	size: [number, number],
+	tiers: Record<string, Action[]>,
+	gctx: import("canvas").CanvasRenderingContext2D
+): Promise<true> {
 	const actionMap = {
 		...createObject(
 			keys(templates),
-			(
-				await getMultipleIcons(await loadImage(file), [24, 24], Object.values(templates))
-			).map((v) => templateImageFunc(v))
+			(await getMultipleIcons(await loadImage(file), [24, 24], Object.values(templates))).map(
+				(v) => templateImageFunc(v)
+			)
 		),
 		...baseActions,
 	};
@@ -90,7 +88,7 @@ async function imageexpr(num, file, templates, size, tiers, gctx) {
 	await parallelizeOver(keys(tiers), async (tier, i) => {
 		const actions = tiers[tier];
 		/** @type {Matrix} */
-		let matrix = await actionMap[actions[0].type](undefined, {
+		let matrix: Matrix = await actionMap[actions[0].type](undefined, {
 			first: true,
 			...actions[0],
 		});
@@ -110,9 +108,9 @@ async function imageexpr(num, file, templates, size, tiers, gctx) {
 
 /**
  * Generate an image based on the provided configuration
- * @param {IConfig} config The options to run Printing Press with
+ * @param config The options to run Printing Press with
  */
-export async function print(config) {
+export async function print(config: IConfig) {
 	const {
 		options: { size = [1, 1], order = false } = {},
 		files: { templates: templateDir = "./templates", out: outDir = "./out" } = {},
@@ -156,11 +154,13 @@ export async function print(config) {
 
 /**
  * Analyse the provided image
- * @param {string} image The path to the image to analyse
- * @param {{ levels: string[] }} options
- * @returns {Promise<Record<string, Record<string, string>>>}
+ * @param image The path to the image to analyse
+ * @param options
  */
-export async function press(image, { levels }) {
+export async function press(
+	image: string,
+	{ levels }: { levels: string[] }
+): Promise<Record<string, Record<string, string>>> {
 	const main = await loadImage(image);
 	const data = (
 		await parallelizeOver(
@@ -179,7 +179,7 @@ export async function press(image, { levels }) {
 			/**
 			 * @type {Record<string, string>}
 			 */
-			const histo = {};
+			const histo: Record<string, string> = {};
 			let sumPX = 0;
 			for (const key in pallette)
 				if ({}.hasOwnProperty.call(pallette, key)) {
@@ -204,7 +204,7 @@ export async function press(image, { levels }) {
 	/**
 	 * @type {Record<string, Record<string, string>>}
 	 */
-	const final = {};
+	const final: Record<string, Record<string, string>> = {};
 	for (const histo of fixedData) Object.assign(final, histo);
 
 	return final;
