@@ -1,3 +1,5 @@
+import { Action } from "../types";
+
 export default class Tier {
 	static tiers: Tier[] = [];
 

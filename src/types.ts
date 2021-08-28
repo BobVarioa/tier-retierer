@@ -1,23 +1,15 @@
+import { IGradient } from "@masterofbob777/helpers/src/image";
+
 declare const $_ENV: { name: string };
 
-//type Matrix<T> = Array<Array<T>>;
-
-interface IGradient {
-	type: "gradient";
-	width: number;
-	height: number;
-	diagonal?: "top-left" | "top-right" | "down" | "left";
-	ramp: { color: string; width?: number }[];
-}
-
-interface IImage {
+export interface IImage {
 	type: "image";
 	path: string;
 }
 
-type PaletteOptions = string | IGradient | IImage;
+export type PaletteOptions = string | IGradient | IImage;
 
-interface IAction {
+export interface IAction {
 	type: string;
 	palette?: {
 		"#ffffff"?: PaletteOptions;
@@ -30,19 +22,19 @@ interface IAction {
 	blend?: "underlay" | "overlay";
 }
 
-interface ImageAction extends IAction {
+export interface ImageAction extends IAction {
 	type: "image";
 	path: string;
 }
 
-interface RecolorAction {
+export interface RecolorAction {
 	type: "recolor";
 	palette: Record<string, PaletteOptions>;
 }
 
-type Action = IAction | ImageAction | RecolorAction;
+export type Action = IAction | ImageAction | RecolorAction;
 
-interface IConfig {
+export interface IConfig {
 	/**
 	 * The general Printing Press options
 	 */
@@ -77,10 +69,4 @@ interface IConfig {
 	 *
 	 */
 	levels: Record<string, Action[]>;
-}
-
-interface Matrixy {
-	getPixel(x: number, y: number): [R: number, G: number, B: number, A: number];
-
-	setPixel(x: number, y: number, val: [R: number, G: number, B: number, A: number]): void;
 }

@@ -1,9 +1,12 @@
 import { createCanvas, loadImage } from "canvas";
 import * as fs from "fs";
 import pathlib from "path";
-import { parallelizeOver, keys } from "./helpers/common";
-import { getMultipleIcons } from "./helpers/main";
-import { ImageMatrix, Matrix } from "./helpers/matrix";
+import { parallelizeOver } from "@masterofbob777/helpers/src/async";
+import { getMultipleIcons, ImageMatrix } from "@masterofbob777/helpers/src/image";
+import { fromKeys } from "@masterofbob777/helpers/src/iterators";
+import type { Image } from "canvas";
+import { getAbsolute } from "@masterofbob777/helpers/src/common";
+import { Action, IConfig } from "./types";
 
 function createObject<K extends number | string | symbol, V>(
 	keys: Iterable<K>,
@@ -19,10 +22,10 @@ function createObject<K extends number | string | symbol, V>(
 }
 
 function templateImageFunc(
-	templateImage: import("canvas").Image
-): (oldmatrix: Matrix, rest: any) => Promise<Matrix> {
+	templateImage: Image
+): (oldmatrix: ImageMatrix, rest: any) => Promise<ImageMatrix> {
 	return async (oldmatrix, { palette, offset, blend, first = false }) => {
-		let matrix = await ImageMatrix.create(templateImage);
+		let matrix = await ImageMatrix.fromImage(templateImage);
 		try {
 			await matrix.replaceColor(palette);
 			if (first) return matrix;
@@ -39,9 +42,9 @@ function templateImageFunc(
 	};
 }
 
-const baseActions: Record<string, (oldmatrix: Matrix, rest: any) => Promise<Matrix>> = {
+const baseActions: Record<string, (oldmatrix: ImageMatrix, rest: any) => Promise<ImageMatrix>> = {
 	async image(oldmatrix, { palette, path, offset, blend, first = false }) {
-		const matrix = await ImageMatrix.create(path);
+		const matrix = await ImageMatrix.fromImage(path);
 		await matrix.replaceColor(palette);
 		if (first) return matrix;
 		if (blend === "underlay") {
@@ -77,18 +80,21 @@ async function imageexpr(
 ): Promise<true> {
 	const actionMap = {
 		...createObject(
-			keys(templates),
-			(await getMultipleIcons(await loadImage(file), [24, 24], Object.values(templates))).map(
-				(v) => templateImageFunc(v)
-			)
+			fromKeys(templates),
+			(
+				await getMultipleIcons(
+					await loadImage(getAbsolute(file)),
+					[24, 24],
+					Object.values(templates)
+				)
+			).map(templateImageFunc)
 		),
 		...baseActions,
 	};
 
-	await parallelizeOver(keys(tiers), async (tier, i) => {
+	await parallelizeOver(fromKeys(tiers), async (tier, i) => {
 		const actions = tiers[tier];
-		/** @type {Matrix} */
-		let matrix: Matrix = await actionMap[actions[0].type](undefined, {
+		let matrix: ImageMatrix = await actionMap[actions[0].type](undefined, {
 			first: true,
 			...actions[0],
 		});
@@ -162,7 +168,7 @@ export async function press(
 	{ levels }: { levels: string[] }
 ): Promise<Record<string, Record<string, string>>> {
 	const main = await loadImage(image);
-	const data = (
+	const data = await parallelizeOver(
 		await parallelizeOver(
 			await getMultipleIcons(
 				main,
@@ -171,39 +177,30 @@ export async function press(
 					return [0, i];
 				})
 			),
-			async (src) => ImageMatrix.create(src)
-		)
-	)
-		.map((mtrx) => mtrx.getPalette())
-		.map((pallette) => {
-			/**
-			 * @type {Record<string, string>}
-			 */
+			async (src) => (await ImageMatrix.fromImage(src)).getPalette()
+		),
+		async (pallette) => {
 			const histo: Record<string, string> = {};
 			let sumPX = 0;
-			for (const key in pallette)
-				if ({}.hasOwnProperty.call(pallette, key)) {
-					const colors = pallette[key];
-					sumPX += colors.length;
-				}
+			for (const key in pallette) {
+				const colors = pallette[key];
+				sumPX += colors.length;
+			}
 
-			for (const key in pallette)
-				if ({}.hasOwnProperty.call(pallette, key)) {
-					const colors = pallette[key];
-					const percent = (colors.length / sumPX) * 100;
-					if (percent < 1) continue;
-					histo[key] = `${percent.toFixed(2)}%`;
-				}
+			for (const key in pallette) {
+				const colors = pallette[key];
+				const percent = (colors.length / sumPX) * 100;
+				if (percent < 1) continue;
+				histo[key] = `${percent.toFixed(2)}%`;
+			}
 
 			return histo;
-		});
+		}
+	);
 	const fixedData = levels.map((tier, i) => {
 		return { [tier]: data[i] };
 	});
 
-	/**
-	 * @type {Record<string, Record<string, string>>}
-	 */
 	const final: Record<string, Record<string, string>> = {};
 	for (const histo of fixedData) Object.assign(final, histo);
 

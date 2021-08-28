@@ -18,23 +18,13 @@
 	"license": "MIT",
 	"devDependencies": {
 		"@masterofbob777/eslint-config": "^1.0.6",
+		"@masterofbob777/grunt-config": "^1.0.9",
 		"esbuild": "^0.11.23",
-		"eslint": "^7.32.0",
 		"grunt": "^1.4.1",
-		"grunt-contrib-clean": "^2.0.0",
-		"grunt-contrib-copy": "^1.0.0",
-		"grunt-contrib-watch": "^1.1.0",
-		"grunt-eslint": "^23.0.0",
-		"jscc": "^1.1.1",
-		"load-grunt-tasks": "^5.1.0",
 		"prettier": "^2.3.2"
 	},
 	"dependencies": {
-		"canvas": "^2.8.0",
-		"color-parse": "^1.4.2",
-		"color-space": "^1.16.0",
-		"fast-equals": "^2.0.3",
-		"qclone": "^1.0.10",
-		"yargs": "^17.1.1"
+		"@masterofbob777/helpers": "^1.0.0",
+		"canvas": "^2.8.0"
 	}
 }

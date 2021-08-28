@@ -1,3 +1,4 @@
+import { IGradient } from "@masterofbob777/helpers/src/image";
 import Tier from "./class/Tier";
 
 const HIGHLIGHT = "#ffffff";
@@ -8,10 +9,7 @@ const OUTERLINE = "#b1739e";
 
 {
 	/* eslint-disable no-unused-vars */
-	/**
-	 * @type {IGradient}
-	 */
-	const ExGradient1 = {
+	const ExGradient1: IGradient = {
 		type: "gradient",
 		width: 24,
 		height: 24,
@@ -23,10 +21,8 @@ const OUTERLINE = "#b1739e";
 			{ color: "#0000ff", width: 7 },
 		],
 	};
-	/**
-	 * @type {IGradient}
-	 */
-	const ExGradient2 = {
+
+	const ExGradient2: IGradient = {
 		type: "gradient",
 		width: 24,
 		height: 24,
@@ -38,11 +34,17 @@ const OUTERLINE = "#b1739e";
 		],
 	};
 }
-/**
- * @param {({width: number, height: number, diagonal?: "top-left" | "top-right" | "down" | "left", ramp: { color: string }[] })} gradient
- * @returns { IGradient}
- */
-const BalancedGradient = ({ width, height, diagonal = "top-left", ramp }) => {
+const BalancedGradient = ({
+	width,
+	height,
+	diagonal = "top-left",
+	ramp,
+}: {
+	width: number;
+	height: number;
+	diagonal?: "top-left" | "top-right" | "down" | "left";
+	ramp: { color: string }[];
+}): IGradient => {
 	const getThing = () => {
 		if (diagonal === "down") return height / ramp.length;
 		if (diagonal === "left") return width / ramp.length;
@@ -207,7 +209,7 @@ new Tier("Alabascream", [
 /**
  * @type {IGradient}
  */
-const IridyumOutline = BalancedGradient({
+const IridyumOutline: IGradient = BalancedGradient({
 	width: 24,
 	height: 24,
 	diagonal: "top-left",
@@ -366,10 +368,7 @@ new Tier("Trophy 3", [
 	},
 ]);
 
-/**
- * @type {(c1: string, c2: string) => IGradient}
- */
-const GoalOutline = (c1, c2) => {
+const GoalOutline = (c1: string, c2: string): IGradient => {
 	return {
 		type: "gradient",
 		height: 24,
@@ -454,7 +453,7 @@ new Tier("Addon", [
 /**
  * @type {IGradient}
  */
-const KittenishOutline = {
+const KittenishOutline: IGradient = {
 	type: "gradient",
 	diagonal: "top-left",
 	width: 24,
@@ -1764,12 +1763,7 @@ new Tier("ornament tier", [
 const FlatIridyum = BalancedGradient({
 	height: 24,
 	width: 24,
-	ramp: [
-		{ color: "#414E7D" },
-		{ color: "#432D2A" },
-		{ color: "#340C02" },
-		{ color: "#0A0508" },
-	],
+	ramp: [{ color: "#414E7D" }, { color: "#432D2A" }, { color: "#340C02" }, { color: "#0A0508" }],
 });
 
 new Tier("flat iriydum", [

@@ -3,9 +3,9 @@ import { print } from "./app";
 
 import "./tiers";
 import Tier from "./class/Tier";
+import { Action } from "./types";
 
-/** @type {Record<string, Action[]>} */
-const levels = {};
+const levels: Record<string, Action[]> = {};
 for (const { name, actions } of Tier.tiers) {
 	levels[name] = actions;
 }
