@@ -18,13 +18,14 @@
 	"license": "MIT",
 	"devDependencies": {
 		"@masterofbob777/eslint-config": "^1.0.6",
-		"@masterofbob777/grunt-config": "^1.0.9",
+		"@masterofbob777/grunt-config": "^1.1.2",
+		"@types/node": "^16.11.0",
 		"esbuild": "^0.11.23",
 		"grunt": "^1.4.1",
-		"prettier": "^2.3.2"
+		"prettier": "^2.4.1"
 	},
 	"dependencies": {
-		"@masterofbob777/helpers": "^1.0.0",
+		"@masterofbob777/helpers": "^1.0.2",
 		"canvas": "^2.8.0"
 	}
 }
